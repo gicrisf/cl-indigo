@@ -1,17 +1,40 @@
-*.FASL
+# Compiled Lisp files
 *.fasl
-*.lisp-temp
-*.dfsl
-*.pfsl
-*.d64fsl
-*.p64fsl
+*.fas
+*.lib
 *.lx64fsl
-*.lx32fsl
 *.dx64fsl
-*.dx32fsl
-*.fx64fsl
-*.fx32fsl
-*.sx64fsl
-*.sx32fsl
 *.wx64fsl
-*.wx32fsl
+
+# SBCL
+*.core
+
+# Quicklisp local projects symlink
+quicklisp/
+
+# Indigo installation (downloaded by install.sh)
+indigo-install/
+
+# Nix library compatibility symlinks
+.nix-lib-compat/
+
+# Build artifacts
+build/
+dist/
+
+# Editor files
+*~
+\#*\#
+.#*
+*.swp
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test output
+test/data/output/
