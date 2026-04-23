@@ -9,10 +9,11 @@ pkgs.mkShell {
     wget
     curl
     dpkg
+    stdenv.cc.cc.lib
   ];
 
   shellHook = ''
-    export LD_LIBRARY_PATH="$PWD/indigo-install/lib:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$PWD/indigo-install/lib:$LD_LIBRARY_PATH"
 
     echo "cl-indigo dev environment"
     echo "Quick start: rlwrap sbcl"
