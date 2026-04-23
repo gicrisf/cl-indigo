@@ -161,6 +161,7 @@
 
    ;; Stream operations
    #:indigo-stream
+   #:lazy-stream-p
    #:stream-force
    #:stream-first
    #:stream-rest

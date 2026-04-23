@@ -2,9 +2,20 @@
 
 (in-package #:cl-indigo)
 
-;;;; =========================================================================
-;;;; Lazy Stream Data Structure
-;;;; =========================================================================
+;; Note: This implementation uses a defstruct (lazy-stream) with explicit fields
+;; (:thunk, :forced, :cached-value) rather than the plain closure approach
+;; used in emacs-indigo (indigo-stream.el). Both achieve lazy evaluation with
+;; memoization, but the struct approach provides:
+;;   - Compile-time type checking
+;;   - Explicit documentation in the struct
+;;   - Easier debugging (printable representation)
+;;
+;; The emacs-indigo version uses captured let variables in a lambda,
+;; which works in Elisp's dynamic scoping but can have edge cases.
+;; The struct approach is more idiomatic for Common Lisp.
+
+;;;;; Lazy Stream Data Structure
+;;;;; ========================================================================= 
 
 (defstruct (lazy-stream
             (:constructor make-lazy-stream (thunk))
@@ -109,7 +120,8 @@ Example:
     (with-atoms-stream (stream mol)
       (stream-collect (stream-map #'atom-symbol stream))))
   => (\"C\" \"C\" \"O\")"
-  (when (and stream (not (stream-empty-p stream)))
+  ;; Return a lazy stream - emptiness is checked inside the thunk
+  (when stream
     (make-lazy-stream
      (lambda ()
        (let ((forced (stream-force stream)))
@@ -131,7 +143,8 @@ Example:
                       stream)))
         (stream-collect (stream-map #'atom-symbol carbons)))))
   => (\"C\" \"C\")"
-  (when (and stream (not (stream-empty-p stream)))
+  ;; Return a lazy stream - emptiness is checked inside the thunk
+  (when stream
     (make-lazy-stream
      (lambda ()
        ;; Search for first matching element
@@ -152,7 +165,8 @@ Example:
     (with-atoms-stream (stream mol)
       (stream-collect (stream-take 3 stream))))
   => (<atom1> <atom2> <atom3>)"
-  (when (and stream (> n 0) (not (stream-empty-p stream)))
+  ;; Return a lazy stream - emptiness is checked inside the thunk
+  (when (and stream (> n 0))
     (make-lazy-stream
      (lambda ()
        (let ((forced (stream-force stream)))
