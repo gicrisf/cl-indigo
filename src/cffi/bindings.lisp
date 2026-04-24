@@ -411,6 +411,16 @@
   (molecule :int)
   (params :string))
 
+(defcfun ("indigoIterateMatches" %indigo-iterate-matches) :int
+  "Create iterator over substructure matches."
+  (matcher :int)
+  (query :int))
+
+(defcfun ("indigoIterateTautomers" %indigo-iterate-tautomers) :int
+  "Create iterator over tautomers."
+  (molecule :int)
+  (params :string))
+
 (defcfun ("indigoIterateDecomposedMolecules" %indigo-iterate-decomposed-molecules) :int
   "Create iterator over decomposed molecules."
   (scaffold :int)
@@ -503,26 +513,19 @@
 (defcfun ("indigoRenderGrid" %indigo-render-grid) :int
   "Render grid of objects."
   (array :int)
-  (params (:pointer :int))
-  (width :int)
-  (height :int)
+  (ref-atoms (:pointer :int))
+  (n-columns :int)
   (renderer :int))
 
 (defcfun ("indigoRenderGridToFile" %indigo-render-grid-to-file) :int
   "Render grid of objects to file."
   (array :int)
-  (params (:pointer :int))
-  (cols :int)
+  (ref-atoms (:pointer :int))
+  (n-columns :int)
   (filename :string))
 
 (defcfun ("indigoRenderReset" %indigo-render-reset) :int
-  "Reset renderer to default settings."
-  (renderer :int))
-
-(defcfun ("indigoRenderWriteHDC" %indigo-render-write-hdc) :int
-  "Render to Windows HDC (Windows only)."
-  (handle :pointer)
-  (print-flag :int))
+  "Reset renderer to default settings.")
 
 ;;;; =========================================================================
 ;;;; I/O and Buffers
@@ -533,8 +536,7 @@
   (filename :string))
 
 (defcfun ("indigoWriteBuffer" %indigo-write-buffer) :int
-  "Write object to buffer."
-  (object :int))
+  "Create a buffer writer.")
 
 (defcfun ("indigoToBuffer" %indigo-to-buffer) :int
   "Convert object to buffer."

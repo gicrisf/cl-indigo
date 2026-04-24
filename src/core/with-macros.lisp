@@ -217,3 +217,26 @@ VAR is bound to the iterator handle within BODY."
              ,@body)
          (when ,handle
            (cl-indigo.cffi::%indigo-free ,handle))))))
+
+;;;; =========================================================================
+;;;; Array Resource Macro
+;;;; =========================================================================
+
+(defmacro with-array ((var) &body body)
+  "Create array with automatic cleanup.
+VAR is bound to the array handle within BODY.
+The array is automatically freed when BODY exits.
+
+Example:
+  (with-molecule* ((mol1 \"CCO\")
+                   (mol2 \"c1ccccc1\"))
+    (with-array (arr)
+      (array-add arr mol1)
+      (array-add arr mol2)))"
+  (with-gensyms (handle)
+    `(let ((,handle (create-array)))
+       (unwind-protect
+           (let ((,var ,handle))
+             ,@body)
+         (when ,handle
+           (cl-indigo.cffi::%indigo-free ,handle))))))

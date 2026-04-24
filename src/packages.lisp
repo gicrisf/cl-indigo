@@ -79,6 +79,9 @@
    #:%indigo-iterate-stereocenters
    #:%indigo-iterate-reactants
    #:%indigo-iterate-products
+   #:%indigo-iterate-array
+   #:%indigo-iterate-matches
+   #:%indigo-iterate-tautomers
 
    ;; Structure manipulation
    #:%indigo-aromatize
@@ -101,9 +104,17 @@
    #:%indigo-has-z-coord
 
    ;; Rendering
+   #:%indigo-render
    #:%indigo-render-to-file
+   #:%indigo-render-grid
+   #:%indigo-render-grid-to-file
+   #:%indigo-render-reset
+   #:%indigo-write-buffer
+   #:%indigo-to-buffer
+   #:%indigo-to-string
    #:%indigo-create-array
-   #:%indigo-array-add))
+   #:%indigo-array-add
+   #:%indigo-iterate-array))
 
 (defpackage #:cl-indigo
   (:use #:cl)
@@ -278,8 +289,16 @@
 
    ;; Rendering
    #:render-to-file
+   #:write-buffer
+   #:to-buffer
+   #:render
+   #:render-grid
+   #:render-grid-to-file
+   #:render-reset
    #:create-array
    #:array-add
+   #:iterate-array
+   #:with-array
 
    ;; Molecule creation
    #:create-molecule
