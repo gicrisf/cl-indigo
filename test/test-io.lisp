@@ -309,3 +309,142 @@
         ;; Verify MOL file content
         (let ((content (read-file-contents temp-file)))
           (is (search "M  END" content)))))))
+
+;;;; =========================================================================
+;;;; Integration Tests (require test data files)
+;;;; =========================================================================
+
+(test integration-load-mol-file
+  "Test loading molecules from MOL files."
+  (let ((mol-file (test-file "molecules/chebi/ChEBI_10305.mol")))
+    (when (probe-file mol-file)
+      (let ((mol (load-molecule-from-file mol-file)))
+        (is (integerp mol))
+        (is (> mol 0))
+        (let ((weight (molecular-weight mol))
+              (formula (gross-formula mol))
+              (atom-count (count-atoms mol))
+              (bond-count (count-bonds mol))
+              (smi (canonical-smiles mol))
+              (mf (molfile mol)))
+          (is (numberp weight))
+          (is (> weight 0))
+          (is (stringp formula))
+          (is (> (length formula) 0))
+          (is (integerp atom-count))
+          (is (> atom-count 0))
+          (is (integerp bond-count))
+          (is (>= bond-count 0))
+          (is (stringp smi))
+          (is (> (length smi) 0))
+          (is (stringp mf))
+          (is (search "M  END" mf)))
+        (indigo-free mol)))))
+
+(test integration-load-multiple-chebi-files
+  "Test loading multiple ChEBI molecules and comparing properties."
+  (let ((chebi-files '("molecules/chebi/ChEBI_10305.mol"
+                       "molecules/chebi/ChEBI_10909.mol"
+                       "molecules/chebi/ChEBI_12211.mol"))
+        (results '()))
+    (dolist (filename chebi-files)
+      (let ((mol-file (test-file filename)))
+        (when (probe-file mol-file)
+          (let ((mol (load-molecule-from-file mol-file)))
+            (when (and (integerp mol) (> mol 0))
+              (let ((weight (molecular-weight mol))
+                    (atom-count (count-atoms mol)))
+                (when (> weight 0)
+                  (push (list filename weight atom-count) results))
+                (indigo-free mol)))))))
+    (is (> (length results) 0))
+    (dolist (result results)
+      (is (> (nth 1 result) 0))
+      (is (> (nth 2 result) 0)))))
+
+(test integration-load-sdf-file
+  "Test loading molecules from SDF files."
+  (let ((sdf-file (test-file "molecules/basic/sugars.sdf")))
+    (when (probe-file sdf-file)
+      (let ((mol (load-molecule-from-file sdf-file)))
+        (is (integerp mol))
+        (is (> mol 0))
+        (let ((formula (gross-formula mol))
+              (has-coords (has-coordinates mol))
+              (ring-count (count-sssr mol)))
+          (is (stringp formula))
+          (is (booleanp has-coords))
+          (is (integerp ring-count))
+          (is (>= ring-count 0)))
+        (indigo-free mol)))))
+
+(test integration-file-saving-roundtrip
+  "Test loading a molecule, saving it, and loading it back."
+  (let ((input-file (test-file "molecules/chebi/ChEBI_7750.mol")))
+    (when (probe-file input-file)
+      (with-temp-file (temp-output "indigo-roundtrip" ".mol")
+        ;; Load original molecule
+        (let ((mol1 (load-molecule-from-file input-file)))
+          (is (integerp mol1))
+          (is (> mol1 0))
+          (let ((original-formula (gross-formula mol1))
+                (original-weight (molecular-weight mol1)))
+            ;; Save molecule
+            (let ((save-result (save-molfile-to-file mol1 temp-output)))
+              (is (integerp save-result))
+              (is (probe-file temp-output))
+              ;; Load saved molecule
+              (let ((mol2 (load-molecule-from-file temp-output)))
+                (is (integerp mol2))
+                (is (> mol2 0))
+                (let ((saved-formula (gross-formula mol2))
+                      (saved-weight (molecular-weight mol2)))
+                  (is (string= original-formula saved-formula))
+                  (is (= original-weight saved-weight)))
+                (indigo-free mol2)))
+            (indigo-free mol1)))))))
+
+(test integration-stereochemistry-handling
+  "Test loading molecules with stereochemistry information."
+  (let ((stereo-file (test-file "molecules/stereo/enhanced_stereo1.mol")))
+    (when (probe-file stereo-file)
+      (let ((mol (load-molecule-from-file stereo-file)))
+        (is (integerp mol))
+        (is (> mol 0))
+        (let ((stereo-count (count-stereocenters mol)))
+          (is (integerp stereo-count))
+          (is (>= stereo-count 0)))
+        (indigo-free mol)))))
+
+(test integration-query-molecule-loading
+  "Test loading query molecules for substructure search."
+  (let ((query-file (test-file "molecules/sss/arom_het_5_21.mol")))
+    (when (probe-file query-file)
+      (let ((qmol (load-query-molecule-from-file query-file)))
+        (is (integerp qmol))
+        (is (> qmol 0))
+        (let ((target-file (test-file "molecules/chebi/ChEBI_10305.mol")))
+          (when (probe-file target-file)
+            (let ((target-mol (load-molecule-from-file target-file)))
+              (is (integerp target-mol))
+              (is (> target-mol 0))
+              (let ((matcher (substructure-matcher target-mol)))
+                (is (integerp matcher))
+                (indigo-free matcher))
+              (indigo-free target-mol))))
+        (indigo-free qmol)))))
+
+(test integration-sgroups-handling
+  "Test loading molecules with S-groups."
+  (let ((sgroup-file (test-file "molecules/sgroups/all_sgroups.sdf")))
+    (when (probe-file sgroup-file)
+      (let ((mol (load-molecule-from-file sgroup-file)))
+        (is (integerp mol))
+        (is (> mol 0))
+        (let ((atom-count (count-atoms mol))
+              (mf (molfile mol)))
+          (is (integerp atom-count))
+          (is (> atom-count 0))
+          (is (stringp mf))
+          (is (> (length mf) 0)))
+        (indigo-free mol)))))

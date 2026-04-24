@@ -270,3 +270,59 @@ Example:
     `(with-bonds-iterator (,iter-var ,molecule)
        (with-stream-from-iterator (,stream-var ,iter-var)
          ,@body))))
+
+(defmacro with-components-stream ((stream-var molecule) &body body)
+  "Create a stream from components iterator with automatic cleanup."
+  (with-gensyms (iter-var)
+    `(with-components-iterator (,iter-var ,molecule)
+       (with-stream-from-iterator (,stream-var ,iter-var)
+         ,@body))))
+
+(defmacro with-sssr-stream ((stream-var molecule) &body body)
+  "Create a stream from SSSR rings iterator with automatic cleanup."
+  (with-gensyms (iter-var)
+    `(with-sssr-iterator (,iter-var ,molecule)
+       (with-stream-from-iterator (,stream-var ,iter-var)
+         ,@body))))
+
+(defmacro with-rings-stream ((stream-var molecule min-atoms max-atoms) &body body)
+  "Create a stream from rings iterator with size range and automatic cleanup."
+  (with-gensyms (iter-var)
+    `(with-rings-iterator (,iter-var ,molecule ,min-atoms ,max-atoms)
+       (with-stream-from-iterator (,stream-var ,iter-var)
+         ,@body))))
+
+(defmacro with-subtrees-stream ((stream-var molecule min-atoms max-atoms) &body body)
+  "Create a stream from subtrees iterator with size range and automatic cleanup."
+  (with-gensyms (iter-var)
+    `(with-subtrees-iterator (,iter-var ,molecule ,min-atoms ,max-atoms)
+       (with-stream-from-iterator (,stream-var ,iter-var)
+         ,@body))))
+
+(defmacro with-stereocenters-stream ((stream-var molecule) &body body)
+  "Create a stream from stereocenters iterator with automatic cleanup."
+  (with-gensyms (iter-var)
+    `(with-stereocenters-iterator (,iter-var ,molecule)
+       (with-stream-from-iterator (,stream-var ,iter-var)
+         ,@body))))
+
+(defmacro with-neighbors-stream ((stream-var atom) &body body)
+  "Create a stream from neighbors iterator with automatic cleanup."
+  (with-gensyms (iter-var)
+    `(with-neighbors-iterator (,iter-var ,atom)
+       (with-stream-from-iterator (,stream-var ,iter-var)
+         ,@body))))
+
+(defmacro with-reactants-stream ((stream-var reaction) &body body)
+  "Create a stream from reactants iterator with automatic cleanup."
+  (with-gensyms (iter-var)
+    `(with-reactants-iterator (,iter-var ,reaction)
+       (with-stream-from-iterator (,stream-var ,iter-var)
+         ,@body))))
+
+(defmacro with-products-stream ((stream-var reaction) &body body)
+  "Create a stream from products iterator with automatic cleanup."
+  (with-gensyms (iter-var)
+    `(with-products-iterator (,iter-var ,reaction)
+       (with-stream-from-iterator (,stream-var ,iter-var)
+         ,@body))))

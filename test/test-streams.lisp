@@ -1033,3 +1033,115 @@
           ;; Only consume first 2
           (stream-first symbols)
           (stream-first (stream-rest symbols)))))))
+
+;;;; =========================================================================
+;;;; Stream-Iterator Bridge Macro Tests
+;;;; =========================================================================
+
+(test with-components-stream-bridge
+  "Test components stream macro."
+  (with-molecule (mol "C.C.C")  ; Three separate components
+    (with-components-stream (stream mol)
+      (is (lazy-stream-p stream))
+      (let ((count 0))
+        (while (not (stream-empty-p stream))
+          (is (integerp (stream-first stream)))
+          (setf stream (stream-rest stream))
+          (incf count))
+        (is (= count 3))))))
+
+(test with-sssr-stream-bridge
+  "Test SSSR rings stream macro."
+  (with-molecule (mol "c1ccc2ccccc2c1")  ; Naphthalene (2 rings)
+    (with-sssr-stream (stream mol)
+      (is (lazy-stream-p stream))
+      (let ((count 0))
+        (while (not (stream-empty-p stream))
+          (is (integerp (stream-first stream)))
+          (setf stream (stream-rest stream))
+          (incf count))
+        (is (= count 2))))))
+
+(test with-sssr-stream-empty
+  "Test SSSR rings stream with acyclic molecule."
+  (with-molecule (mol "CCC")  ; Propane (no rings)
+    (with-sssr-stream (stream mol)
+      (is (lazy-stream-p stream))
+      (is (stream-empty-p stream)))))
+
+(test with-rings-stream-bridge
+  "Test rings stream macro with size range."
+  (with-molecule (mol "c1ccccc1")  ; Benzene (one 6-membered ring)
+    (with-rings-stream (stream mol 3 7)
+      (is (lazy-stream-p stream))
+      (is-not (stream-empty-p stream))
+      (let ((first (stream-first stream)))
+        (is (integerp first))))))
+
+(test with-subtrees-stream-bridge
+  "Test subtrees stream macro with size range."
+  (with-molecule (mol "CCO")
+    (with-subtrees-stream (stream mol 1 3)
+      (is (lazy-stream-p stream))
+      (is-not (stream-empty-p stream))
+      (let ((first (stream-first stream)))
+        (is (integerp first))))))
+
+(test with-stereocenters-stream-bridge
+  "Test stereocenters stream macro."
+  (with-molecule (mol "C[C@H](O)N")  ; Molecule with stereocenter
+    (with-stereocenters-stream (stream mol)
+      (is (lazy-stream-p stream))
+      (let ((count 0))
+        (while (not (stream-empty-p stream))
+          (is (integerp (stream-first stream)))
+          (setf stream (stream-rest stream))
+          (incf count))
+        (is (= count 1))))))
+
+(test with-stereocenters-stream-empty
+  "Test stereocenters stream with molecule without stereocenters."
+  (with-molecule (mol "CCO")  ; Ethanol (no stereocenters)
+    (with-stereocenters-stream (stream mol)
+      (is (lazy-stream-p stream))
+      (is (stream-empty-p stream)))))
+
+(test with-neighbors-stream-bridge
+  "Test neighbors stream macro."
+  (with-molecule (mol "CCC")  ; Propane
+    (with-atoms-iterator (atoms mol)
+      (indigo-next atoms)  ; Skip first
+      (let ((middle-carbon (indigo-next atoms)))  ; Get middle carbon
+        (with-neighbors-stream (stream middle-carbon)
+          (is (lazy-stream-p stream))
+          (let ((count 0))
+            (while (not (stream-empty-p stream))
+              (is (integerp (stream-first stream)))
+              (setf stream (stream-rest stream))
+              (incf count))
+            (is (= count 2))))
+        (indigo-free middle-carbon)))))
+
+(test with-reactants-stream-bridge
+  "Test reactants stream macro."
+  (with-reaction (rxn "CCO.CC>>CCOCC")
+    (with-reactants-stream (stream rxn)
+      (is (lazy-stream-p stream))
+      (let ((count 0))
+        (while (not (stream-empty-p stream))
+          (is (integerp (stream-first stream)))
+          (setf stream (stream-rest stream))
+          (incf count))
+        (is (= count 2))))))
+
+(test with-products-stream-bridge
+  "Test products stream macro."
+  (with-reaction (rxn "CCO.CC>>CCOCC")
+    (with-products-stream (stream rxn)
+      (is (lazy-stream-p stream))
+      (let ((count 0))
+        (while (not (stream-empty-p stream))
+          (is (integerp (stream-first stream)))
+          (setf stream (stream-rest stream))
+          (incf count))
+        (is (= count 1))))))

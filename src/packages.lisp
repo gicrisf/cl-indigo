@@ -191,6 +191,14 @@
    #:with-atoms-stream*
    #:with-bonds-stream
    #:with-bonds-stream*
+   #:with-components-stream
+   #:with-sssr-stream
+   #:with-rings-stream
+   #:with-subtrees-stream
+   #:with-stereocenters-stream
+   #:with-neighbors-stream
+   #:with-reactants-stream
+   #:with-products-stream
    #:with-stream-from-iterator
 
    ;; Stream operations

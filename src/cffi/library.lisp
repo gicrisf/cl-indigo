@@ -37,6 +37,12 @@
   (:windows (:or "indigo.dll" "indigo64.dll"))
   (t (:default "libindigo")))
 
+(define-foreign-library libindigo-renderer
+  (:unix (:or "libindigo-renderer.so" "libindigo-renderer.so.0d" "libindigo-renderer.so.1"))
+  (:darwin (:or "libindigo-renderer.dylib" "libindigo-renderer.1.dylib"))
+  (:windows (:or "indigo-renderer.dll" "indigo-renderer64.dll"))
+  (t (:default "libindigo-renderer")))
+
 (defun load-indigo-library ()
   "Load the Indigo shared library.
 Returns T if successful, signals an error otherwise.
@@ -53,6 +59,10 @@ The library is searched for in:
     (handler-case
         (progn
           (use-foreign-library libindigo)
+          (handler-case
+              (use-foreign-library libindigo-renderer)
+            (load-foreign-library-error ()
+              (warn "Could not load Indigo renderer library; rendering functions will not be available.")))
           (setf *indigo-loaded* t))
       (load-foreign-library-error (e)
         (let ((root (cl-indigo-root)))
