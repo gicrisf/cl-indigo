@@ -12,6 +12,9 @@
 # Quicklisp local projects symlink
 quicklisp/
 
+# Quicklisp bootstrap (downloaded from quicklisp.org)
+quicklisp.lisp
+
 # Indigo installation (downloaded by install.sh)
 indigo-install/
 

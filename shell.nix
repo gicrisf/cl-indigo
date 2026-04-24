@@ -1,5 +1,12 @@
 { pkgs ? import <nixpkgs> {} }:
 
+let
+  libPath = pkgs.lib.makeLibraryPath [
+    pkgs.cairo
+    pkgs.stdenv.cc.cc.lib
+  ];
+in
+
 pkgs.mkShell {
   name = "cl-indigo-dev";
 
@@ -9,11 +16,12 @@ pkgs.mkShell {
     wget
     curl
     dpkg
+    cairo
     stdenv.cc.cc.lib
   ];
 
   shellHook = ''
-    export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$PWD/indigo-install/lib:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="${libPath}:$PWD/indigo-install/lib:$LD_LIBRARY_PATH"
 
     echo "cl-indigo dev environment"
     echo "Quick start: rlwrap sbcl"

@@ -63,6 +63,11 @@ if wget -q "$DEB_URL" 2>/dev/null || curl -s -O "$DEB_URL" 2>/dev/null; then
         cp extracted/usr/include/indigo*.h ../include/ 2>/dev/null || true
     fi
 
+    # Create symlink for renderer library if needed
+    if [ -f "../lib/libindigo-renderer.so.0d" ] && [ ! -e "../lib/libindigo-renderer.so" ]; then
+        ln -sf libindigo-renderer.so.0d ../lib/libindigo-renderer.so
+    fi
+
     # Verify files were copied
     if [ ! -f "../include/indigo.h" ] || [ -z "$(ls ../lib/libindigo*.so* 2>/dev/null)" ]; then
         echo "Error: Failed to extract Indigo files from .deb package"
