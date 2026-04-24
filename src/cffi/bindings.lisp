@@ -411,16 +411,6 @@
   (molecule :int)
   (params :string))
 
-(defcfun ("indigoIterateMatches" %indigo-iterate-matches) :int
-  "Create iterator over substructure matches."
-  (matcher :int)
-  (query :int))
-
-(defcfun ("indigoIterateTautomers" %indigo-iterate-tautomers) :int
-  "Create iterator over tautomers."
-  (molecule :int)
-  (params :string))
-
 (defcfun ("indigoIterateDecomposedMolecules" %indigo-iterate-decomposed-molecules) :int
   "Create iterator over decomposed molecules."
   (scaffold :int)

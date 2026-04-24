@@ -80,6 +80,77 @@ Use WITH-PRODUCTS-ITERATOR for automatic cleanup."
    (cl-indigo.cffi::%indigo-iterate-products reaction)
    "iterate-products"))
 
+(defun iterate-subtrees (molecule min-atoms max-atoms)
+  "Create an iterator over subtrees in MOLECULE with size constraints.
+MIN-ATOMS and MAX-ATOMS specify the range of atoms in each subtree.
+Returns an iterator handle that must be freed.
+Use WITH-SUBTREES-ITERATOR for automatic cleanup."
+  (check-handle
+   (cl-indigo.cffi::%indigo-iterate-subtrees molecule min-atoms max-atoms)
+   "iterate-subtrees"))
+
+(defun iterate-rings (molecule min-atoms max-atoms)
+  "Create an iterator over rings in MOLECULE with size constraints.
+MIN-ATOMS and MAX-ATOMS specify the range of atoms in each ring.
+Returns an iterator handle that must be freed.
+Use WITH-RINGS-ITERATOR for automatic cleanup."
+  (check-handle
+   (cl-indigo.cffi::%indigo-iterate-rings molecule min-atoms max-atoms)
+   "iterate-rings"))
+
+(defun iterate-edge-submolecules (molecule min-bonds max-bonds)
+  "Create an iterator over edge submolecules in MOLECULE.
+MIN-BONDS and MAX-BONDS specify the bond count range.
+Returns an iterator handle that must be freed.
+Use WITH-EDGE-SUBMOLECULES-ITERATOR for automatic cleanup."
+  (check-handle
+   (cl-indigo.cffi::%indigo-iterate-edge-submolecules molecule min-bonds max-bonds)
+   "iterate-edge-submolecules"))
+
+(defun iterate-properties (handle)
+  "Create an iterator over properties of HANDLE.
+HANDLE can be a molecule, atom, or bond.
+Returns an iterator handle that must be freed.
+Use WITH-PROPERTIES-ITERATOR for automatic cleanup."
+  (check-handle
+   (cl-indigo.cffi::%indigo-iterate-properties handle)
+   "iterate-properties"))
+
+(defun iterate-catalysts (reaction)
+  "Create an iterator over catalysts in REACTION.
+Returns an iterator handle that must be freed.
+Use WITH-CATALYSTS-ITERATOR for automatic cleanup."
+  (check-handle
+   (cl-indigo.cffi::%indigo-iterate-catalysts reaction)
+   "iterate-catalysts"))
+
+(defun iterate-molecules (reader-or-array)
+  "Create an iterator over molecules in READER-OR-ARRAY.
+READER-OR-ARRAY can be a file reader or array handle.
+Returns an iterator handle that must be freed.
+Use WITH-MOLECULES-ITERATOR for automatic cleanup."
+  (check-handle
+   (cl-indigo.cffi::%indigo-iterate-molecules reader-or-array)
+   "iterate-molecules"))
+
+(defun iterate-matches (matcher query)
+  "Create an iterator over substructure matches.
+MATCHER is a substructure matcher, QUERY is a query molecule.
+Returns an iterator handle that must be freed.
+Use WITH-MATCHES-ITERATOR for automatic cleanup."
+  (check-handle
+   (cl-indigo.cffi::%indigo-iterate-matches matcher query)
+   "iterate-matches"))
+
+(defun iterate-tautomers (molecule &optional (options ""))
+  "Create an iterator over tautomers of MOLECULE.
+OPTIONS is an options string (can be empty).
+Returns an iterator handle that must be freed.
+Use WITH-TAUTOMERS-ITERATOR for automatic cleanup."
+  (check-handle
+   (cl-indigo.cffi::%indigo-iterate-tautomers molecule options)
+   "iterate-tautomers"))
+
 ;;;; =========================================================================
 ;;;; Iterator Advancement
 ;;;; =========================================================================

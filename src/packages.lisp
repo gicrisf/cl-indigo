@@ -177,6 +177,14 @@
    #:with-reactants-iterator*
    #:with-products-iterator
    #:with-products-iterator*
+   #:with-subtrees-iterator
+   #:with-rings-iterator
+   #:with-edge-submolecules-iterator
+   #:with-properties-iterator
+   #:with-catalysts-iterator
+   #:with-molecules-iterator
+   #:with-matches-iterator
+   #:with-tautomers-iterator
 
    ;; Resource management macros (streams)
    #:with-atoms-stream
@@ -278,6 +286,14 @@
    #:iterate-stereocenters
    #:iterate-reactants
    #:iterate-products
+   #:iterate-subtrees
+   #:iterate-rings
+   #:iterate-edge-submolecules
+   #:iterate-properties
+   #:iterate-catalysts
+   #:iterate-molecules
+   #:iterate-matches
+   #:iterate-tautomers
    #:indigo-next
    #:indigo-map
 

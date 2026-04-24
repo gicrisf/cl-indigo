@@ -300,3 +300,114 @@
                    (setf stream (stream-rest stream))))
         (is (= (length symbols) 6))
         (is (every (lambda (s) (string= s "C")) symbols))))))
+
+;;;; =========================================================================
+;;;; Advanced Iterator Tests
+;;;; =========================================================================
+
+(test subtrees-iterator
+  "Test subtree iteration with size constraints."
+  (with-molecule (mol "CCCC")  ; Butane
+    (with-subtrees-iterator (subtrees mol 2 3)  ; 2-3 atom subtrees
+      (is (integerp subtrees))
+      (is (> subtrees 0))
+      (let ((count 0))
+        (loop for subtree = (indigo-next subtrees)
+              while subtree
+              do (incf count)
+                 (indigo-free subtree))
+        (is (> count 0))))))
+
+(test rings-iterator
+  "Test ring iteration with size constraints."
+  (with-molecule (mol "c1ccc2ccccc2c1")  ; Naphthalene
+    (with-rings-iterator (rings mol 5 7)  ; 5-7 atom rings
+      (is (integerp rings))
+      (is (> rings 0))
+      (let ((count 0))
+        (loop for ring = (indigo-next rings)
+              while ring
+              do (incf count)
+                 (indigo-free ring))
+        (is (= count 2))))))
+
+(test edge-submolecules-iterator
+  "Test edge submolecule iteration."
+  (with-molecule (mol "CCCC")  ; Butane
+    (with-edge-submolecules-iterator (submol mol 1 2)  ; 1-2 bond submolecules
+      (is (integerp submol))
+      (is (> submol 0))
+      (let ((count 0))
+        (loop for item = (indigo-next submol)
+              while item
+              do (incf count)
+                 (indigo-free item))
+        (is (> count 0))))))
+
+(test properties-iterator
+  "Test property iteration."
+  (with-molecule (mol "CCO")
+    (with-properties-iterator (props mol)
+      (is (integerp props))
+      (is (> props 0))
+      (let ((count 0))
+        (loop for prop = (indigo-next props)
+              while prop
+              do (incf count)
+                 (indigo-free prop))
+        (is (>= count 0))))))
+
+(test reaction-molecules-iterator
+  "Test iterating over all molecules in a reaction."
+  (with-reaction (rxn "CCO>>CC")
+    (with-molecules-iterator (molecules rxn)
+      (is (integerp molecules))
+      (is (> molecules 0))
+      (let ((count 0))
+        (loop for mol = (indigo-next molecules)
+              while mol
+              do (incf count)
+                 (indigo-free mol))
+        (is (= count 2))))))
+
+(test matches-iterator
+  "Test substructure match iteration."
+  (with-molecule (target "c1ccc2ccccc2c1")  ; Naphthalene
+    (with-query (query "c1ccccc1")  ; Benzene as query
+      (with-matcher (matcher target)
+        (with-matches-iterator (matches matcher query)
+          (is (integerp matches))
+          (is (> matches 0))
+          (let ((count 0))
+            (loop for match = (indigo-next matches)
+                  while match
+                  do (incf count)
+                     (indigo-free match))
+            (is (> count 0))))))))
+
+(test tautomers-iterator
+  "Test tautomer iteration."
+  (with-molecule (mol "CC(=O)CC")  ; Keto form
+    (with-tautomers-iterator (tautomers mol)
+      (is (integerp tautomers))
+      (is (> tautomers 0))
+      (let ((count 0))
+        (loop for tautomer = (indigo-next tautomers)
+              while tautomer
+              do (incf count)
+                 (indigo-free tautomer))
+        (is (>= count 1))))))
+
+(test advanced-iterator-error-handling
+  "Test error handling for advanced iterators."
+  ;; Test with invalid molecule handle
+  (signals indigo-error (iterate-subtrees -1 2 3))
+  (signals indigo-error (iterate-rings -1 5 7))
+  (signals indigo-error (iterate-edge-submolecules -1 1 2))
+  (signals indigo-error (iterate-properties -1))
+
+  ;; Valid range parameters should work
+  (with-molecule (mol "CCO")
+    (is (integerp (iterate-subtrees mol 1 1)))
+    (is (integerp (iterate-rings mol 3 10)))
+    (is (integerp (iterate-properties mol)))))

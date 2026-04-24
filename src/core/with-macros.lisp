@@ -218,6 +218,95 @@ VAR is bound to the iterator handle within BODY."
          (when ,handle
            (cl-indigo.cffi::%indigo-free ,handle))))))
 
+(defmacro with-subtrees-iterator ((var molecule min-atoms max-atoms) &body body)
+  "Create subtrees iterator for MOLECULE with size range and automatic cleanup.
+VAR is bound to the iterator handle within BODY."
+  (with-gensyms (handle)
+    `(let ((,handle (iterate-subtrees ,molecule ,min-atoms ,max-atoms)))
+       (unwind-protect
+           (let ((,var ,handle))
+             ,@body)
+         (when ,handle
+           (cl-indigo.cffi::%indigo-free ,handle))))))
+
+(defmacro with-rings-iterator ((var molecule min-atoms max-atoms) &body body)
+  "Create rings iterator for MOLECULE with size range and automatic cleanup.
+VAR is bound to the iterator handle within BODY."
+  (with-gensyms (handle)
+    `(let ((,handle (iterate-rings ,molecule ,min-atoms ,max-atoms)))
+       (unwind-protect
+           (let ((,var ,handle))
+             ,@body)
+         (when ,handle
+           (cl-indigo.cffi::%indigo-free ,handle))))))
+
+(defmacro with-edge-submolecules-iterator ((var molecule min-bonds max-bonds) &body body)
+  "Create edge submolecules iterator with automatic cleanup.
+VAR is bound to the iterator handle within BODY."
+  (with-gensyms (handle)
+    `(let ((,handle (iterate-edge-submolecules ,molecule ,min-bonds ,max-bonds)))
+       (unwind-protect
+           (let ((,var ,handle))
+             ,@body)
+         (when ,handle
+           (cl-indigo.cffi::%indigo-free ,handle))))))
+
+(defmacro with-properties-iterator ((var handle) &body body)
+  "Create properties iterator for HANDLE with automatic cleanup.
+VAR is bound to the iterator handle within BODY."
+  (with-gensyms (handle-iter)
+    `(let ((,handle-iter (iterate-properties ,handle)))
+       (unwind-protect
+           (let ((,var ,handle-iter))
+             ,@body)
+         (when ,handle-iter
+           (cl-indigo.cffi::%indigo-free ,handle-iter))))))
+
+(defmacro with-catalysts-iterator ((var reaction) &body body)
+  "Create catalysts iterator for REACTION with automatic cleanup.
+VAR is bound to the iterator handle within BODY."
+  (with-gensyms (handle)
+    `(let ((,handle (iterate-catalysts ,reaction)))
+       (unwind-protect
+           (let ((,var ,handle))
+             ,@body)
+         (when ,handle
+           (cl-indigo.cffi::%indigo-free ,handle))))))
+
+(defmacro with-molecules-iterator ((var reader-or-array) &body body)
+  "Create molecules iterator for READER-OR-ARRAY with automatic cleanup.
+VAR is bound to the iterator handle within BODY."
+  (with-gensyms (handle)
+    `(let ((,handle (iterate-molecules ,reader-or-array)))
+       (unwind-protect
+           (let ((,var ,handle))
+             ,@body)
+         (when ,handle
+           (cl-indigo.cffi::%indigo-free ,handle))))))
+
+(defmacro with-matches-iterator ((var matcher query) &body body)
+  "Create substructure matches iterator with automatic cleanup.
+VAR is bound to the iterator handle within BODY."
+  (with-gensyms (handle)
+    `(let ((,handle (iterate-matches ,matcher ,query)))
+       (unwind-protect
+           (let ((,var ,handle))
+             ,@body)
+         (when ,handle
+           (cl-indigo.cffi::%indigo-free ,handle))))))
+
+(defmacro with-tautomers-iterator ((var molecule &optional options) &body body)
+  "Create tautomers iterator for MOLECULE with automatic cleanup.
+VAR is bound to the iterator handle within BODY.
+OPTIONS is an options string (defaults to \"\")."
+  (with-gensyms (handle)
+    `(let ((,handle (iterate-tautomers ,molecule ,(or options ""))))
+       (unwind-protect
+           (let ((,var ,handle))
+             ,@body)
+         (when ,handle
+           (cl-indigo.cffi::%indigo-free ,handle))))))
+
 ;;;; =========================================================================
 ;;;; Array Resource Macro
 ;;;; =========================================================================
