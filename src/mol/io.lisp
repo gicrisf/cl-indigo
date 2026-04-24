@@ -55,10 +55,10 @@ Returns handle on success, signals INDIGO-ERROR on failure.
 
 Example:
   (load-molecule-from-file \"molecule.mol\")"
+  (unless (probe-file filename)
+    (error 'indigo-error
+           :message (format nil "File does not exist: ~A" filename)))
   (let ((path (namestring (truename filename))))
-    (unless (probe-file path)
-      (error 'indigo-error
-             :message (format nil "File does not exist: ~A" filename)))
     (check-handle
      (cl-indigo.cffi::%indigo-load-molecule-from-file path)
      "load-molecule-from-file")))
@@ -66,10 +66,10 @@ Example:
 (defun load-query-molecule-from-file (filename)
   "Load query molecule from FILENAME.
 Returns handle on success, signals INDIGO-ERROR on failure."
+  (unless (probe-file filename)
+    (error 'indigo-error
+           :message (format nil "File does not exist: ~A" filename)))
   (let ((path (namestring (truename filename))))
-    (unless (probe-file path)
-      (error 'indigo-error
-             :message (format nil "File does not exist: ~A" filename)))
     (check-handle
      (cl-indigo.cffi::%indigo-load-query-molecule-from-file path)
      "load-query-molecule-from-file")))
@@ -77,10 +77,10 @@ Returns handle on success, signals INDIGO-ERROR on failure."
 (defun load-smarts-from-file (filename)
   "Load SMARTS pattern from FILENAME.
 Returns handle on success, signals INDIGO-ERROR on failure."
+  (unless (probe-file filename)
+    (error 'indigo-error
+           :message (format nil "File does not exist: ~A" filename)))
   (let ((path (namestring (truename filename))))
-    (unless (probe-file path)
-      (error 'indigo-error
-             :message (format nil "File does not exist: ~A" filename)))
     (check-handle
      (cl-indigo.cffi::%indigo-load-smarts-from-file path)
      "load-smarts-from-file")))
@@ -88,10 +88,10 @@ Returns handle on success, signals INDIGO-ERROR on failure."
 (defun load-reaction-from-file (filename)
   "Load reaction from FILENAME.
 Returns handle on success, signals INDIGO-ERROR on failure."
+  (unless (probe-file filename)
+    (error 'indigo-error
+           :message (format nil "File does not exist: ~A" filename)))
   (let ((path (namestring (truename filename))))
-    (unless (probe-file path)
-      (error 'indigo-error
-             :message (format nil "File does not exist: ~A" filename)))
     (check-handle
      (cl-indigo.cffi::%indigo-load-reaction-from-file path)
      "load-reaction-from-file")))
@@ -112,3 +112,65 @@ Returns a new handle that must be freed separately."
   (check-handle
    (cl-indigo.cffi::%indigo-clone handle)
    "indigo-clone"))
+
+;;;; =========================================================================
+;;;; Molecule Creation
+;;;; =========================================================================
+
+(defun create-molecule ()
+  "Create an empty molecule.
+Returns handle on success, signals INDIGO-ERROR on failure.
+Remember to free with INDIGO-FREE or use within WITH-MOLECULE."
+  (check-handle
+   (cl-indigo.cffi::%indigo-create-molecule)
+   "create-molecule"))
+
+(defun create-query-molecule ()
+  "Create an empty query molecule.
+Returns handle on success, signals INDIGO-ERROR on failure.
+Remember to free with INDIGO-FREE or use within WITH-QUERY."
+  (check-handle
+   (cl-indigo.cffi::%indigo-create-query-molecule)
+   "create-query-molecule"))
+
+;;;; =========================================================================
+;;;; Molecule Saving
+;;;; =========================================================================
+
+(defun save-molfile-to-file (molecule filename)
+  "Save MOLECULE to FILENAME in MOL format.
+Returns 0 on success, signals INDIGO-ERROR on failure.
+
+Example:
+  (with-molecule (mol \"CCO\")
+    (save-molfile-to-file mol \"ethanol.mol\"))"
+  (let ((result (cl-indigo.cffi::%indigo-save-molfile-to-file
+                 molecule
+                 (namestring filename))))
+    (when (< result 0)
+      (error 'indigo-error
+             :message (format nil "save-molfile-to-file failed: ~A"
+                              (cl-indigo.cffi::%indigo-get-last-error))))
+    result))
+
+;;;; =========================================================================
+;;;; Array Operations
+;;;; =========================================================================
+
+(defun create-array ()
+  "Create an empty array for holding multiple objects.
+Returns handle on success, signals INDIGO-ERROR on failure.
+Remember to free with INDIGO-FREE."
+  (check-handle
+   (cl-indigo.cffi::%indigo-create-array)
+   "create-array"))
+
+(defun array-add (array object)
+  "Add OBJECT to ARRAY.
+Returns 0 on success, signals INDIGO-ERROR on failure."
+  (let ((result (cl-indigo.cffi::%indigo-array-add array object)))
+    (when (< result 0)
+      (error 'indigo-error
+             :message (format nil "array-add failed: ~A"
+                              (cl-indigo.cffi::%indigo-get-last-error))))
+    result))

@@ -266,6 +266,13 @@
    #:create-array
    #:array-add
 
+   ;; Molecule creation
+   #:create-molecule
+   #:create-query-molecule
+
+   ;; Molecule saving
+   #:save-molfile-to-file
+
    ;; Low-level
    #:indigo-free
    #:indigo-clone

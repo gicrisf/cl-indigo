@@ -63,9 +63,8 @@ Example:
 (defun fold-hydrogens (molecule)
   "Remove explicit hydrogen atoms from MOLECULE (convert to implicit).
 
-Returns a keyword indicating the result:
-  :changed   - Hydrogens were folded
-  :unchanged - No explicit hydrogens to fold
+Returns T on success (hydrogens were folded), NIL if no change needed.
+Signals INDIGO-ERROR on failure.
 
 Example:
   (with-molecule (mol \"CCO\")
@@ -75,8 +74,8 @@ Example:
     (count-atoms mol))       ; => 3 (only heavy atoms)"
   (let ((result (cl-indigo.cffi::%indigo-fold-hydrogens molecule)))
     (cond
-      ((= result 1) :changed)
-      ((= result 0) :unchanged)
+      ((= result 1) t)
+      ((= result 0) nil)
       ((= result -1)
        (error 'indigo-error
               :message (format nil "fold-hydrogens: ~A"
@@ -88,9 +87,8 @@ Example:
   "Add explicit hydrogen atoms to MOLECULE.
 Makes all implicit hydrogen atoms explicit in the structure.
 
-Returns a keyword indicating the result:
-  :changed   - Hydrogens were added
-  :unchanged - No implicit hydrogens to unfold
+Returns T on success (hydrogens were added), NIL if no change needed.
+Signals INDIGO-ERROR on failure.
 
 Example:
   (with-molecule (mol \"CCO\")
@@ -99,8 +97,8 @@ Example:
     (count-atoms mol))          ; => 9 (3 heavy + 6 H)"
   (let ((result (cl-indigo.cffi::%indigo-unfold-hydrogens molecule)))
     (cond
-      ((= result 1) :changed)
-      ((= result 0) :unchanged)
+      ((= result 1) t)
+      ((= result 0) nil)
       ((= result -1)
        (error 'indigo-error
               :message (format nil "unfold-hydrogens: ~A"
