@@ -117,6 +117,21 @@
    ;; System
    #:indigo-version
    #:count-references
+   #:get-last-error
+   #:free-all-objects
+
+   ;; Session management
+   #:alloc-session-id
+   #:set-session-id
+   #:release-session-id
+
+   ;; Options
+   #:set-option
+   #:set-option-int
+   #:set-option-bool
+   #:set-option-float
+   #:set-option-color
+   #:set-option-xy
 
    ;; Resource management macros (molecules)
    #:with-molecule

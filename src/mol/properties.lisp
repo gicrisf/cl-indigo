@@ -15,6 +15,75 @@
 Useful for debugging resource leaks."
   (cl-indigo.cffi::%indigo-count-references))
 
+(defun get-last-error ()
+  "Get the last error message from Indigo.
+Returns the error message as a string."
+  (cl-indigo.cffi::%indigo-get-last-error))
+
+(defun free-all-objects ()
+  "Free all Indigo objects in current session.
+Returns 0 on success.
+WARNING: This invalidates ALL handles in the current session."
+  (cl-indigo.cffi::%indigo-free-all-objects))
+
+;;;; =========================================================================
+;;;; Session Management
+;;;; =========================================================================
+
+(defun alloc-session-id ()
+  "Allocate a new session ID.
+Returns session ID (positive integer) on success."
+  (cl-indigo.cffi::%indigo-alloc-session-id))
+
+(defun set-session-id (session-id)
+  "Set the current session ID.
+Returns T on success."
+  (cl-indigo.cffi::%indigo-set-session-id session-id)
+  t)
+
+(defun release-session-id (session-id)
+  "Release a session ID.
+Returns T on success."
+  (cl-indigo.cffi::%indigo-release-session-id session-id)
+  t)
+
+;;;; =========================================================================
+;;;; Option Setting
+;;;; =========================================================================
+
+(defun set-option (name value)
+  "Set Indigo string option NAME to VALUE.
+Returns result code (0 on success, negative on error)."
+  (cl-indigo.cffi::%indigo-set-option name value))
+
+(defun set-option-int (name value)
+  "Set Indigo integer option NAME to VALUE.
+Returns result code (0 on success, negative on error)."
+  (cl-indigo.cffi::%indigo-set-option-int name value))
+
+(defun set-option-bool (name value)
+  "Set Indigo boolean option NAME to VALUE (0 or 1).
+Returns result code (0 on success, negative on error)."
+  (cl-indigo.cffi::%indigo-set-option-bool name value))
+
+(defun set-option-float (name value)
+  "Set Indigo float option NAME to VALUE.
+Returns result code (0 on success, negative on error)."
+  (cl-indigo.cffi::%indigo-set-option-float name (coerce value 'single-float)))
+
+(defun set-option-color (name r g b)
+  "Set Indigo color option NAME to RGB values (0.0-1.0).
+Returns result code (0 on success, negative on error)."
+  (cl-indigo.cffi::%indigo-set-option-color name
+                                             (coerce r 'single-float)
+                                             (coerce g 'single-float)
+                                             (coerce b 'single-float)))
+
+(defun set-option-xy (name x y)
+  "Set Indigo XY option NAME to coordinates.
+Returns result code (0 on success, negative on error)."
+  (cl-indigo.cffi::%indigo-set-option-xy name x y))
+
 ;;;; =========================================================================
 ;;;; Format Conversions (String Output)
 ;;;; =========================================================================
