@@ -25,8 +25,9 @@
 
 ;;; Error Handling
 
-(defcfun ("indigoGetLastError" %indigo-get-last-error) :string
-  "Get the last error message from Indigo.")
+(defcfun ("indigoGetLastError" %indigo-get-last-error) (:string :encoding :latin-1)
+  "Get the last error message from Indigo.
+Uses Latin-1 encoding to safely handle any byte sequence Indigo may return.")
 
 ;;; System Functions
 

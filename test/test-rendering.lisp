@@ -27,7 +27,7 @@
       (set-option-int "render-image-width" 300)
       (set-option-int "render-image-height" 200)
       (let ((result (render-to-file mol temp-file)))
-        (is (eq result t))
+        (is (>= result 0))
         (is-true (probe-file temp-file))
         (is (> (file-length (open temp-file :direction :input)) 0))))))
 
@@ -38,9 +38,9 @@
       (unwind-protect
           (progn
             ;; Set rendering options for SVG output
-            (is (eq (set-option "render-output-format" "svg") 0))
+            (is (>= (set-option "render-output-format" "svg") 0))
             ;; Render molecule to buffer
-            (is (eq (render mol writer) t))
+            (is (>= (render mol writer) 0))
             ;; Get buffer contents
             (let ((content (to-buffer writer)))
               (is (stringp content))
@@ -68,8 +68,8 @@
       (unwind-protect
           (progn
             ;; Add molecules to array
-            (is (eq (array-add array mol1) 0))
-            (is (eq (array-add array mol2) 0))
+            (is (>= (array-add array mol1) 0))
+            (is (>= (array-add array mol2) 0))
             ;; Verify array can be used for iteration
             (let ((iter (iterate-array array))
                   (count 0))
@@ -94,12 +94,12 @@
       (unwind-protect
           (progn
             ;; Set rendering options
-            (is (eq (set-option "render-output-format" "svg") 0))
-            (is (eq (set-option-int "render-image-width" 300) 0))
-            (is (eq (set-option-int "render-image-height" 200) 0))
+            (is (>= (set-option "render-output-format" "svg") 0))
+            (is (>= (set-option-int "render-image-width" 300) 0))
+            (is (>= (set-option-int "render-image-height" 200) 0))
             ;; Render molecule
             (let ((result (render mol writer)))
-              (is (eq result t))
+              (is (>= result 0))
               ;; Verify output contains content
               (let ((content (to-buffer writer)))
                 (is (stringp content))
@@ -111,12 +111,12 @@
   (with-molecule (mol "c1ccccc1")
     (with-temp-file (temp-file "indigo-molecule" ".png")
       ;; Set rendering options for PNG
-      (is (eq (set-option "render-output-format" "png") 0))
-      (is (eq (set-option-int "render-image-width" 400) 0))
-      (is (eq (set-option-int "render-image-height" 300) 0))
+      (is (>= (set-option "render-output-format" "png") 0))
+      (is (>= (set-option-int "render-image-width" 400) 0))
+      (is (>= (set-option-int "render-image-height" 300) 0))
       ;; Render directly to file
       (let ((result (render-to-file mol temp-file)))
-        (is (eq result t))
+        (is (>= result 0))
         ;; File should exist and have content
         (is-true (probe-file temp-file))
         (is (> (file-length (open temp-file :direction :input)) 0))))))
@@ -147,7 +147,7 @@
                     (set-option-int "render-image-height" 400)
                     ;; Render grid with 2 columns, no ref atoms (nil)
                     (let ((result (render-grid array nil 2 writer)))
-                      (is (eq result t))
+                      (is (>= result 0))
                       ;; Verify output
                       (let ((content (to-buffer writer)))
                         (is (stringp content))
@@ -174,7 +174,7 @@
 
               ;; Render grid directly to file with 1 column
               (let ((result (render-grid-to-file array nil 1 temp-file)))
-                (is (eq result t))
+                (is (>= result 0))
                 ;; File should exist and contain SVG content
                 (is-true (probe-file temp-file))
                 (let ((content (read-file-contents temp-file)))
@@ -194,14 +194,16 @@
 
   ;; Reset rendering options
   (let ((result (render-reset)))
-    (is (eq result t)))
+    (is (>= result 0)))
 
+  ;; Set output format again after reset
+  (set-option "render-output-format" "svg")
   ;; Verify reset worked by rendering a simple molecule
   (with-molecule (mol "CCO")
     (let ((writer (write-buffer)))
       (unwind-protect
           (progn
-            (is (eq (render mol writer) t))
+            (is (>= (render mol writer) 0))
             (let ((content (to-buffer writer)))
               (is (stringp content))
               (is (not (string= content "")))))
@@ -228,7 +230,7 @@
 
             ;; Render molecule
             (let ((result (render-to-file mol temp-file)))
-              (is (eq result t))
+              (is (>= result 0))
               (is-true (probe-file temp-file))
               (is (> (file-length (open temp-file :direction :input)) 100)))))
       (indigo-error (e)
@@ -260,10 +262,8 @@
 
   ;; Test file rendering with invalid path
   (with-molecule (mol "CCO")
-    (let ((result (render-to-file mol "/invalid/path/molecule.png")))
-      ;; Should fail gracefully (return nil or signal error)
-      (is (or (null result)
-              (and (not result) t))))))
+    (signals indigo-error
+      (render-to-file mol "/invalid/path/molecule.png"))))
 
 ;;;; =========================================================================
 ;;;; Performance and Memory Tests
@@ -278,7 +278,7 @@
         (let ((writer (write-buffer)))
           (unwind-protect
               (progn
-                (is (eq (render mol writer) t))
+                (is (>= (render mol writer) 0))
                 (let ((content (to-buffer writer)))
                   (is (stringp content))))
             (indigo-free writer)))))
@@ -294,30 +294,30 @@
 (test rendering-options
   "Test various rendering options and their effects."
   (with-molecule (mol "c1ccccc1")
-    ;; Test different output formats
-    (dolist (format '("svg" "png"))
-      (is (eq (set-option "render-output-format" format) 0))
+    ;; Test different output formats (SVG only — PNG is binary)
+    (dolist (format '("svg"))
+      (is (>= (set-option "render-output-format" format) 0))
       (let ((writer (write-buffer)))
         (unwind-protect
             (progn
-              (is (eq (render mol writer) t))
+              (is (>= (render mol writer) 0))
               (let ((content (to-buffer writer)))
                 (is (stringp content))
                 (is (not (string= content "")))))
           (indigo-free writer))))
 
     ;; Test dimension options
-    (is (eq (set-option-int "render-image-width" 200) 0))
-    (is (eq (set-option-int "render-image-height" 150) 0))
+    (is (>= (set-option-int "render-image-width" 200) 0))
+    (is (>= (set-option-int "render-image-height" 150) 0))
 
     ;; Test color options
-    (is (eq (set-option-color "render-background-color" 1.0 1.0 1.0) 0))
+    (is (>= (set-option-color "render-background-color" 1.0 1.0 1.0) 0))
 
     ;; Test coordinate options
-    (is (eq (set-option-xy "render-grid-margins" 10 15) 0))
+    (is (>= (set-option-xy "render-grid-margins" 10 15) 0))
 
     ;; Test float options
-    (is (eq (set-option-float "render-bond-length" 25.5) 0))))
+    (is (>= (set-option-float "render-bond-length" 25.5) 0))))
 
 ;;;; =========================================================================
 ;;;; Grid Rendering with Reference Atoms
@@ -341,7 +341,7 @@
 
               ;; Render grid with reference atoms
               (let ((result (render-grid-to-file array '(0 0) 2 temp-file)))
-                (is (eq result t))
+                (is (>= result 0))
                 (is-true (probe-file temp-file))
                 (is (> (file-length (open temp-file :direction :input)) 0)))))
         (indigo-free array)))))

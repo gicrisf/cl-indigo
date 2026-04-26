@@ -106,8 +106,8 @@
   (signals indigo-error (iterate-bonds -1))
   (signals indigo-error (iterate-sssr -1))
 
-  ;; Test next with invalid iterator - returns nil (exhausted state)
-  (is (null (indigo-next -1)))
+  ;; Test next with invalid iterator - signals error
+  (signals indigo-error (indigo-next -1))
 
   ;; Test with valid molecule (error-free path)
   (with-molecule (mol "CCO")

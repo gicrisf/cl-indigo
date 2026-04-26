@@ -30,10 +30,7 @@ Returns the rendered output as a string.
 Example:
   (let ((content (to-buffer writer)))
     (search \"<svg\" content))"
-  (let ((result (cl-indigo.cffi::%indigo-to-string writer)))
-    (when (and (stringp result) (string= result ""))
-      nil)
-    result))
+  (cl-indigo.cffi::%indigo-to-string writer))
 
 ;;;; =========================================================================
 ;;;; Molecule Rendering
