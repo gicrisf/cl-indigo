@@ -108,3 +108,134 @@
     (with-reaction (rxn "CC>>C.C")
       (is (integerp rxn))
       (is (> rxn 0)))))
+
+;;;; =========================================================================
+;;;; Automap Tests
+;;;; =========================================================================
+
+(test automap-basic
+  "Test automatic atom mapping."
+  (with-reaction (rxn "CC>>C.C")
+    (is (= (automap rxn "discard") 0))))
+
+(test automap-modes
+  "Test different automap modes."
+  (with-reaction (rxn "CC>>C.C")
+    (is (= (automap rxn "discard") 0))
+    (is (= (automap rxn "keep") 0))
+    (is (= (automap rxn "alter") 0))
+    (is (= (automap rxn "clear") 0))))
+
+;;;; =========================================================================
+;;;; Atom Mapping Number Tests
+;;;; =========================================================================
+
+(test atom-mapping-number
+  "Test get/set atom mapping numbers."
+  (with-reaction (rxn "CC>>C.C")
+    ;; First automap the reaction
+    (automap rxn "discard")
+    ;; Get a reactant molecule and its first atom
+    (with-reactants-iterator (reactants rxn)
+      (let ((mol (indigo-next reactants)))
+        (when mol
+          (with-atoms-iterator (atoms mol)
+            (let ((atom (indigo-next atoms)))
+              (when atom
+                ;; Should have a mapping number after automap
+                (let ((mapping (get-atom-mapping-number atom)))
+                  (is (integerp mapping)))))))))))
+
+(test set-atom-mapping-number
+  "Test setting atom mapping numbers."
+  (with-reaction (rxn "CC>>C.C")
+    (with-reactants-iterator (reactants rxn)
+      (let ((mol (indigo-next reactants)))
+        (when mol
+          (with-atoms-iterator (atoms mol)
+            (let ((atom (indigo-next atoms)))
+              (when atom
+                (is (= (set-atom-mapping-number atom 42) 0))
+                (is (= (get-atom-mapping-number atom) 42))))))))))
+
+;;;; =========================================================================
+;;;; Clear AAM Tests
+;;;; =========================================================================
+
+(test clear-aam-basic
+  "Test clearing atom-to-atom mapping."
+  (with-reaction (rxn "[CH3:1][CH3:2]>>[CH4:1].[CH4:2]")
+    (is (= (clear-aam rxn) 0))
+    ;; After clearing, mapping numbers should be 0
+    (with-reactants-iterator (reactants rxn)
+      (let ((mol (indigo-next reactants)))
+        (when mol
+          (with-atoms-iterator (atoms mol)
+            (let ((atom (indigo-next atoms)))
+              (when atom
+                (is (= (get-atom-mapping-number atom) 0))))))))))
+
+;;;; =========================================================================
+;;;; Correct Reacting Centers Tests
+;;;; =========================================================================
+
+(test correct-reacting-centers-basic
+  "Test correcting reacting centers."
+  (with-reaction (rxn "CC>>C.C")
+    (automap rxn "discard")
+    (is (= (correct-reacting-centers rxn) 0))))
+
+;;;; =========================================================================
+;;;; Reacting Center Tests
+;;;; =========================================================================
+
+(test get-reacting-center
+  "Test getting reacting center type."
+  (with-reaction (rxn "CC>>C.C")
+    (automap rxn "discard")
+    (correct-reacting-centers rxn)
+    (with-reactants-iterator (reactants rxn)
+      (let ((mol (indigo-next reactants)))
+        (when mol
+          (with-bonds-iterator (bonds mol)
+            (let ((bond (indigo-next bonds)))
+              (when bond
+                (let ((rc (get-reacting-center bond)))
+                  (is (integerp rc)))))))))))
+
+(test set-reacting-center
+  "Test setting reacting center type."
+  (with-reaction (rxn "CC>>C.C")
+    (with-reactants-iterator (reactants rxn)
+      (let ((mol (indigo-next reactants)))
+        (when mol
+          (with-bonds-iterator (bonds mol)
+            (let ((bond (indigo-next bonds)))
+              (when bond
+                ;; Set to RC_MADE_OR_BROKEN (4)
+                (is (= (set-reacting-center bond 4) 0))
+                (is (= (get-reacting-center bond) 4))))))))))
+
+;;;; =========================================================================
+;;;; Count Reactants/Products Tests
+;;;; =========================================================================
+
+(test count-reactants-basic
+  "Test counting reactants."
+  (with-reaction (rxn "CCO.CC>>CCOC")
+    (is (= (count-reactants rxn) 2))))
+
+(test count-products-basic
+  "Test counting products."
+  (with-reaction (rxn "CC>>C.C")
+    (is (= (count-products rxn) 2))))
+
+(test count-reactants-single
+  "Test counting single reactant."
+  (with-reaction (rxn "CC>>C.C")
+    (is (= (count-reactants rxn) 1))))
+
+(test count-products-single
+  "Test counting single product."
+  (with-reaction (rxn "CCO.CC>>CCOC")
+    (is (= (count-products rxn) 1))))

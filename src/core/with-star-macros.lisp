@@ -50,6 +50,7 @@ The generated macro can then be used like:
 (define-with-star "fingerprint")
 (define-with-star "matcher")
 (define-with-star "reaction")
+(define-with-star "rxn-file")
 
 ;;; Iterator macros
 (define-with-star "atoms-iterator")

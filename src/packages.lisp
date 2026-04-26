@@ -102,6 +102,23 @@
    ;; Coordinates
    #:%indigo-has-coordinates
    #:%indigo-has-z-coord
+   #:%indigo-is-chiral
+
+   ;; Reaction mapping
+   #:%indigo-automap
+   #:%indigo-get-atom-mapping-number
+   #:%indigo-set-atom-mapping-number
+   #:%indigo-clear-aam
+   #:%indigo-correct-reacting-centers
+   #:%indigo-get-reacting-center
+   #:%indigo-set-reacting-center
+   #:%indigo-count-reactants
+   #:%indigo-count-products
+
+   ;; PKA calculations
+   #:%indigo-build-pka-model
+   #:%indigo-get-acid-pka-value
+   #:%indigo-get-basic-pka-value
 
    ;; Rendering
    #:%indigo-render
@@ -159,6 +176,8 @@
    #:with-matcher*
    #:with-reaction
    #:with-reaction*
+   #:with-rxn-file
+   #:with-rxn-file*
 
    ;; Resource management macros (iterators)
    #:with-atoms-iterator
@@ -241,6 +260,7 @@
    #:count-stereocenters
    #:has-coordinates
    #:has-z-coord
+   #:is-chiral
 
    ;; Atom properties
    #:atom-symbol
@@ -330,6 +350,22 @@
 
    ;; Molecule saving
    #:save-molfile-to-file
+
+   ;; Reaction operations
+   #:automap
+   #:get-atom-mapping-number
+   #:set-atom-mapping-number
+   #:clear-aam
+   #:correct-reacting-centers
+   #:get-reacting-center
+   #:set-reacting-center
+   #:count-reactants
+   #:count-products
+
+   ;; PKA calculations
+   #:build-pka-model
+   #:get-acid-pka-value
+   #:get-basic-pka-value
 
    ;; Low-level
    #:indigo-free

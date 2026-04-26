@@ -119,6 +119,21 @@ Example:
          (when ,handle
            (cl-indigo.cffi::%indigo-free ,handle))))))
 
+(defmacro with-rxn-file ((var filename) &body body)
+  "Load reaction from FILENAME with automatic cleanup.
+VAR is bound to the reaction handle within BODY.
+
+Example:
+  (with-rxn-file (rxn \"reaction.rxn\")
+    (automap rxn \"discard\"))"
+  (with-gensyms (handle)
+    `(let ((,handle (load-reaction-from-file ,filename)))
+       (unwind-protect
+           (let ((,var ,handle))
+             ,@body)
+         (when ,handle
+           (cl-indigo.cffi::%indigo-free ,handle))))))
+
 ;;;; =========================================================================
 ;;;; Iterator Resource Macros
 ;;;; =========================================================================

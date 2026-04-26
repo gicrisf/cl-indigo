@@ -262,6 +262,31 @@
             (eq (getf results :has-z) nil)))))
 
 ;;;; =========================================================================
+;;;; Chirality Tests
+;;;; =========================================================================
+
+(test is-chiral-achiral
+  "Test is-chiral for achiral molecule."
+  (with-molecule (mol "CCO")  ; Ethanol - achiral
+    (is (not (is-chiral mol)))))
+
+(test is-chiral-chiral
+  "Test is-chiral for chiral molecule."
+  (with-molecule (mol "N[C@@H](C)C(=O)O")  ; L-alanine - chiral
+    (is (is-chiral mol))))
+
+(test is-chiral-benzene
+  "Test is-chiral for symmetric molecule."
+  (with-molecule (mol "c1ccccc1")  ; Benzene - achiral
+    (is (not (is-chiral mol)))))
+
+(test is-chiral-multiple-centers
+  "Test is-chiral for molecule with multiple stereocenters."
+  (with-molecule (mol "[C@H](O)([C@H](O)C)C")  ; Has 2 stereocenters
+    ;; Should be chiral
+    (is (is-chiral mol))))
+
+;;;; =========================================================================
 ;;;; Manipulation Tests
 ;;;; =========================================================================
 

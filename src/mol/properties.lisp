@@ -208,3 +208,31 @@ Returns T if coordinates are present, NIL otherwise."
   "Check if MOLECULE has 3D coordinates (Z coordinate).
 Returns T if 3D, NIL if 2D or no coordinates."
   (= 1 (cl-indigo.cffi::%indigo-has-z-coord molecule)))
+
+;;;; =========================================================================
+;;;; Chirality Functions
+;;;; =========================================================================
+
+(defun is-chiral (molecule)
+  "Check if MOLECULE is chiral.
+Returns T if the molecule is chiral, NIL otherwise.
+
+A molecule is chiral if it is non-superimposable on its mirror image.
+This is typically due to the presence of stereocenters.
+
+Example:
+  (with-molecule (mol \"N[C@@H](C)C(=O)O\")  ; L-alanine
+    (is-chiral mol))
+  => T
+
+  (with-molecule (mol \"CCO\")  ; Ethanol
+    (is-chiral mol))
+  => NIL"
+  (let ((result (cl-indigo.cffi::%indigo-is-chiral molecule)))
+    (cond
+      ((< result 0)
+       (error 'indigo-error
+              :message (format nil "Failed to check chirality: ~A"
+                              (cl-indigo.cffi::%indigo-get-last-error))))
+      ((= result 1) t)
+      (t nil))))
