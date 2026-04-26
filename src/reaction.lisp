@@ -33,7 +33,10 @@ MODE can be one of:
   \"keep\" - keep existing mapping
   \"alter\" - alter existing mapping
   \"clear\" - clear mapping first, then map
-Returns 0 on success.
+Returns the number of mappings made (>= 0 on success).
+
+NOTE: Returns the raw Indigo result, which is the number of atom mappings
+created.
 
 Example:
   (with-reaction (rxn \"CC>>C.C\")
@@ -45,36 +48,38 @@ Example:
                              (cl-indigo.cffi::%indigo-get-last-error))))
     result))
 
-(defun get-atom-mapping-number (atom)
-  "Get atom mapping number for ATOM in a reaction.
-Returns the mapping number as an integer, or NIL if not mapped.
+(defun get-atom-mapping-number (reaction atom)
+  "Get atom mapping number for ATOM in REACTION.
+Returns the mapping number as an integer (0 if not mapped).
+
+NOTE: Returns the raw Indigo result (>= 0 on success, < 0 on error).
+This matches the Indigo C API behavior: -1 signals error.
 
 Example:
   (with-reaction (rxn \"[CH3:1][CH3:2]>>[CH4:1].[CH4:2]\")
     (with-reactants-iterator (reactants rxn)
       (let ((mol (indigo-next reactants)))
         (with-atoms-iterator (atoms mol)
-          (get-atom-mapping-number (indigo-next atoms))))))"
-  (cffi:with-foreign-object (number :int)
-    (let ((result (cl-indigo.cffi::%indigo-get-atom-mapping-number atom number)))
-      (when (< result 0)
-        (error 'indigo-error
-               :message (format nil "Failed to get atom mapping number: ~A"
-                               (cl-indigo.cffi::%indigo-get-last-error))))
-      (cffi:mem-ref number :int))))
+          (get-atom-mapping-number rxn (indigo-next atoms))))))"
+  (let ((result (cl-indigo.cffi::%indigo-get-atom-mapping-number reaction atom)))
+    (when (< result 0)
+      (error 'indigo-error
+             :message (format nil "Failed to get atom mapping number: ~A"
+                             (cl-indigo.cffi::%indigo-get-last-error))))
+    result))
 
-(defun set-atom-mapping-number (atom number)
-  "Set atom mapping NUMBER for ATOM in a reaction.
+(defun set-atom-mapping-number (reaction atom number)
+  "Set atom mapping NUMBER for ATOM in REACTION.
 NUMBER should be a non-negative integer (0 means unmapped).
-Returns 0 on success.
+Returns the raw Indigo result (1 on success, -1 on error).
 
 Example:
   (with-reaction (rxn \"CC>>C.C\")
     (with-reactants-iterator (reactants rxn)
       (let ((mol (indigo-next reactants)))
         (with-atoms-iterator (atoms mol)
-          (set-atom-mapping-number (indigo-next atoms) 1)))))"
-  (let ((result (cl-indigo.cffi::%indigo-set-atom-mapping-number atom number)))
+          (set-atom-mapping-number rxn (indigo-next atoms) 1)))))"
+  (let ((result (cl-indigo.cffi::%indigo-set-atom-mapping-number reaction atom number)))
     (when (< result 0)
       (error 'indigo-error
              :message (format nil "Failed to set atom mapping number: ~A"
@@ -83,7 +88,7 @@ Example:
 
 (defun clear-aam (reaction)
   "Clear all atom-to-atom mappings in REACTION.
-Returns 0 on success.
+Returns the raw Indigo result (1 on success, -1 on error).
 
 Example:
   (with-reaction (rxn \"[CH3:1][CH3:2]>>[CH4:1].[CH4:2]\")
@@ -97,7 +102,7 @@ Example:
 
 (defun correct-reacting-centers (reaction)
   "Correct reacting centers in REACTION based on atom mapping.
-Returns 0 on success.
+Returns the raw Indigo result (1 on success, -1 on error).
 
 Example:
   (with-reaction (rxn \"CC>>C.C\")
@@ -121,8 +126,8 @@ Example:
 ;;; 4 = RC_MADE_OR_BROKEN - bond is made or broken
 ;;; 8 = RC_ORDER_CHANGED - bond order changed
 
-(defun get-reacting-center (bond)
-  "Get reacting center type for BOND in a reaction.
+(defun get-reacting-center (reaction bond)
+  "Get reacting center type for BOND in REACTION.
 Returns an integer representing the reacting center type.
 See Indigo documentation for bit flag meanings.
 
@@ -133,27 +138,27 @@ Example:
     (with-reactants-iterator (reactants rxn)
       (let ((mol (indigo-next reactants)))
         (with-bonds-iterator (bonds mol)
-          (get-reacting-center (indigo-next bonds))))))"
+          (get-reacting-center rxn (indigo-next bonds))))))"
   (cffi:with-foreign-object (rc :int)
-    (let ((result (cl-indigo.cffi::%indigo-get-reacting-center bond rc)))
+    (let ((result (cl-indigo.cffi::%indigo-get-reacting-center reaction bond rc)))
       (when (< result 0)
         (error 'indigo-error
                :message (format nil "Failed to get reacting center: ~A"
                                (cl-indigo.cffi::%indigo-get-last-error))))
       (cffi:mem-ref rc :int))))
 
-(defun set-reacting-center (bond rc)
-  "Set reacting center type RC for BOND in a reaction.
+(defun set-reacting-center (reaction bond rc)
+  "Set reacting center type RC for BOND in REACTION.
 RC should be an integer representing the reacting center type.
-Returns 0 on success.
+Returns the raw Indigo result (1 on success, -1 on error).
 
 Example:
   (with-reaction (rxn \"CC>>C.C\")
     (with-reactants-iterator (reactants rxn)
       (let ((mol (indigo-next reactants)))
         (with-bonds-iterator (bonds mol)
-          (set-reacting-center (indigo-next bonds) 4)))))"  ; RC_MADE_OR_BROKEN
-  (let ((result (cl-indigo.cffi::%indigo-set-reacting-center bond rc)))
+          (set-reacting-center rxn (indigo-next bonds) 4)))))"  ; RC_MADE_OR_BROKEN
+  (let ((result (cl-indigo.cffi::%indigo-set-reacting-center reaction bond rc)))
     (when (< result 0)
       (error 'indigo-error
              :message (format nil "Failed to set reacting center: ~A"

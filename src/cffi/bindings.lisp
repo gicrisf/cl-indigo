@@ -553,11 +553,12 @@
 
 (defcfun ("indigoGetAtomMappingNumber" %indigo-get-atom-mapping-number) :int
   "Get atom mapping number in reaction."
-  (atom :int)
-  (number (:pointer :int)))
+  (reaction :int)
+  (atom :int))
 
 (defcfun ("indigoSetAtomMappingNumber" %indigo-set-atom-mapping-number) :int
   "Set atom mapping number in reaction."
+  (reaction :int)
   (atom :int)
   (number :int))
 
@@ -571,11 +572,13 @@
 
 (defcfun ("indigoGetReactingCenter" %indigo-get-reacting-center) :int
   "Get reacting center type."
+  (reaction :int)
   (bond :int)
   (rc (:pointer :int)))
 
 (defcfun ("indigoSetReactingCenter" %indigo-set-reacting-center) :int
   "Set reacting center type."
+  (reaction :int)
   (bond :int)
   (rc :int))
 
